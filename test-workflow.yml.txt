@@ -1,0 +1,26 @@
+name: Stock Filter Test
+
+on:
+  workflow_dispatch:  # Manual trigger only
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+      
+      - name: Install dependencies
+        run: npm install
+      
+      - name: Run stock filter test
+        run: node test-stock-filter.js
+        env:
+          PROXY_URL: ${{ secrets.PROXY_URL }}
