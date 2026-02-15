@@ -1,0 +1,19 @@
+{
+  "name": "sheinverse-stock-sniper",
+  "version": "2.0.0",
+  "description": "SHEINVERSE Stock Monitor - Alerts for in-stock items only",
+  "main": "sniper.js",
+  "scripts": {
+    "start": "node sniper.js",
+    "test": "node test.js"
+  },
+  "dependencies": {
+    "node-fetch": "2.7.0",
+    "form-data": "4.0.0",
+    "puppeteer": "24.15.0",
+    "https-proxy-agent": "7.0.0"
+  },
+  "keywords": ["shein", "sniper", "stock", "monitor"],
+  "author": "",
+  "license": "MIT"
+}
