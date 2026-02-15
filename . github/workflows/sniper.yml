@@ -1,0 +1,63 @@
+name: SHEINVERSE Stock Sniper
+
+on:
+  schedule:
+    - cron: '*/15 * * * *'  # Every 15 minutes
+  workflow_dispatch:  # Manual trigger
+
+jobs:
+  monitor:
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+      
+      - name: Download previous seen products
+        uses: actions/download-artifact@v4
+        with:
+          name: seen-products
+        continue-on-error: true
+      
+      - name: Download cached cookies
+        uses: actions/download-artifact@v4
+        with:
+          name: cached-cookies
+        continue-on-error: true
+      
+      - name: Install dependencies
+        run: |
+          npm init -y
+          npm install node-fetch@2.7.0 form-data@4.0.0 puppeteer@24.15.0 https-proxy-agent@7.0.0
+      
+      - name: Run stock sniper
+        run: node sniper.js
+        env:
+          TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+          TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
+          PROXY_URL: ${{ secrets.PROXY_URL }}
+        timeout-minutes: 6
+      
+      - name: Upload seen products
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: seen-products
+          path: seen_products.json
+          retention-days: 90
+          if-no-files-found: ignore
+      
+      - name: Upload cached cookies
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: cached-cookies
+          path: cookies.json
+          retention-days: 1
+          if-no-files-found: ignore
