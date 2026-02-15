@@ -1,0 +1,39 @@
+name: Sheinverse API Sniper
+
+on:
+  schedule:
+    - cron: '*/15 * * * *'  # Every 15 minutes
+  workflow_dispatch:  # Manual trigger
+
+jobs:
+  snipe:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+      
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+      
+      - name: Install dependencies
+        run: npm install --prefer-offline --no-audit
+      
+      - name: Run sniper
+        run: node sniper.js
+        env:
+          TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+          TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
+        timeout-minutes: 8
+      
+      - name: Commit updated data
+        run: |
+          git config user.name "Sniper Bot"
+          git config user.email "bot@github.com"
+          git add -f seen_products.json cookies.json
+          git diff --quiet && git diff --staged --quiet || (git commit -m "🤖 Update seen products [skip ci]" && git push)
